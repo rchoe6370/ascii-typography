@@ -1,3 +1,3 @@
 # ascii-typography
 
-Generative typography built with canvas-sketch
+Generative typography and particle system built with canvas-sketch
