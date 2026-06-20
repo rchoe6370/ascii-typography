@@ -7,7 +7,7 @@ const settings = {
 };
 
 const particles = [];
-const numParticles = 50;
+const numParticles = 120;
 
 const sketch = ({ context, width, height }) => {  
   
@@ -17,7 +17,9 @@ const sketch = ({ context, width, height }) => {
       let x = random.range(width);
       let y = random.range(height);
 
-      let particle = new Particle({ x, y, width, height });
+      let type = Math.random() < 0.1 ? 'heavy' : 'normal';
+
+      let particle = new Particle({ x, y, type, width, height });
 
       particles.push(particle);    
   }
@@ -31,6 +33,8 @@ const sketch = ({ context, width, height }) => {
       particle.update();
       particle.draw(context);
     });
+
+    connect(context);
   };
 };
 
@@ -45,8 +49,14 @@ const connect = (context) => {
       let dx = ax - bx;
       let dy = ay - by;
       let dd = Math.sqrt(dx * dx + dy * dy)
+      let maxdd = 100;
+      let maxddd = 200;
 
-      if (dd < 100) {
+      //reduces fps drops lol
+      if (Math.abs(dx) > maxdd || Math.abs(dy) > maxdd) continue;
+
+
+      if (dd < maxddd) {
         context.save()
         context.strokeStyle = 'white';
         context.lineWidth = 2;
@@ -56,7 +66,6 @@ const connect = (context) => {
         context.lineTo(bx, by);
         context.stroke();
         context.restore();
-
       }
     }
   }
@@ -65,9 +74,13 @@ const connect = (context) => {
 canvasSketch(sketch, settings);
 
 class Particle {
-  constructor({ x, y, width, height }) {
+  constructor({ x, y, type = 'normal', width, height }) {
     this.x = x;
     this.y = y;
+    this.type = type;
+
+    this.radius = this.type === 'heavy' ? 15 : 8;
+    this.color = this.type === 'heavy'? '#ff0000' : '#ffffff';
 
     this.width = width;
     this.height = height;
@@ -93,15 +106,13 @@ class Particle {
   draw(context) {
     context.save();
     context.translate(this.x, this.y);
-    context.fillStyle = 'white';
+    context.fillStyle = this.color;
 
     context.beginPath();
-    context.arc(0, 0, 10, 0, Math.PI * 2);
+    context.arc(0, 0, this.radius, 0, Math.PI * 2);
     context.fill();
 
     context.restore();
-
-    connect(context);
   }
 }
 
